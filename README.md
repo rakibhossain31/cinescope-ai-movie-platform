@@ -1,5 +1,3 @@
-# cinescope-ai-movie-platform
-AI-powered movie discovery platform with TMDB live catalog, Gemini chatbot, personalized recommendations, user authentication, and admin dashboard.
 # CineScope: AI-Powered Movie Discovery Platform
 
 CineScope is a modern movie discovery website built with Flask, TMDB API, Gemini AI, SQLite, HTML, CSS, and JavaScript.
