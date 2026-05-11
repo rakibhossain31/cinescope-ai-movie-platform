@@ -66,3 +66,48 @@ cinescope-ai-movie-platform/
     ├── register.html
     ├── preferences.html
     └── admin_dashboard.html
+
+```
+
+## Installation
+
+Install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the application:
+
+```bash
+python app.py
+```
+
+Open in browser:
+
+```text
+http://127.0.0.1:5000
+```
+
+## API Setup
+
+Set environment variables before running the app.
+
+### Windows Command Prompt
+
+```bash
+setx TMDB_BEARER_TOKEN "your_tmdb_token_here"
+setx AI_PROVIDER "gemini"
+setx GEMINI_API_KEY "your_gemini_api_key_here"
+```
+
+After setting them, close Command Prompt and open a new one.
+
+## Admin Login
+
+Default admin account:
+
+```text
+Username: admin
+Password: admin123
+```
