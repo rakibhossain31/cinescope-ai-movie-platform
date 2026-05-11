@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="detail-hero" {% if movie.backdrop %}style="background-image: linear-gradient(180deg, rgba(7,11,20,0.28), rgba(7,11,20,0.96)), url('{{ movie.backdrop }}');"{% endif %}>
+  <div class="detail-poster-column">{% if movie.poster %}<img src="{{ movie.poster }}" alt="{{ movie.title }}" class="detail-poster">{% else %}<div class="detail-poster poster-fallback">{{ movie.title }}</div>{% endif %}</div>
+  <div class="detail-copy">
+    <span class="section-kicker">Movie detail</span>
+    <h1>{{ movie.title }}</h1>
+    {% if movie.tagline %}<p class="tagline">{{ movie.tagline }}</p>{% endif %}
+    <div class="detail-facts"><span>⭐ {{ movie.rating }}</span><span>{{ movie.year }}</span><span>{{ movie.language }}</span>{% if movie.runtime %}<span>{{ movie.runtime }} min</span>{% endif %}{% if movie.genres %}<span>{{ movie.genres|join(', ') }}</span>{% endif %}</div>
+    <p class="detail-overview">{{ movie.overview }}</p>
+    {% if trailer %}<a href="{{ trailer }}" target="_blank" rel="noopener noreferrer" class="primary-btn">Watch trailer</a>{% endif %}
+  </div>
+</section>
+{% if cast %}<section class="section-block compact-block"><div class="section-head"><div><span class="section-kicker">Cast</span><h2>Main cast</h2></div></div><div class="cast-grid">{% for actor in cast %}<div class="cast-card"><strong>{{ actor.name }}</strong><span>{{ actor.character }}</span></div>{% endfor %}</div></section>{% endif %}
+{% if similar_movies %}<section class="section-block compact-block"><div class="section-head"><div><span class="section-kicker">More to watch</span><h2>Similar movies</h2></div></div><div class="movie-grid">{% for item in similar_movies %}<article class="movie-card small-card"><a href="{{ url_for('movie_detail', source=item.source, movie_id=item.id) }}" class="poster-link">{% if item.poster %}<img src="{{ item.poster }}" alt="{{ item.title }}" class="poster short-poster">{% else %}<div class="poster poster-fallback short-poster">{{ item.title }}</div>{% endif %}</a><div class="card-body"><h3>{{ item.title }}</h3><p class="meta-line">⭐ {{ item.rating }} · {{ item.year }}</p></div></article>{% endfor %}</div></section>{% endif %}
+{% endblock %}

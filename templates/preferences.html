@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section-block compact-block">
+  <div class="section-head"><div><span class="section-kicker">Taste profile</span><h1 class="page-title">Teach the recommender your movie taste</h1></div><span class="mini-note">{{ 'Gemini taste picks' if engine == 'gemini' else 'Smart local taste picks' }}</span></div>
+  <form method="post" class="stack-form wide-form">
+    <div class="field-grid two-columns">
+      <div class="field"><label>Favorite movies</label><input type="text" name="favorite_movies" value="{{ user['favorite_movies'] }}" placeholder="Harry Potter, The Hunger Games, Inception"></div>
+      <div class="field"><label>Preferred genres</label><input type="text" name="preferred_genres" value="{{ user['preferred_genres'] }}" placeholder="Adventure, Action, Romance"></div>
+      <div class="field"><label>Preferred languages</label><input type="text" name="preferred_languages" value="{{ user['preferred_languages'] }}" placeholder="English, Hindi, Korean"></div>
+      <div class="field"><label>Preferred moods</label><input type="text" name="preferred_moods" value="{{ user['preferred_moods'] }}" placeholder="Excited, Happy, Romantic"></div>
+    </div>
+    <button type="submit" class="primary-btn">Save taste profile</button>
+  </form>
+</section>
+<section class="section-block compact-block">
+  <div class="section-head"><div><span class="section-kicker">Based on saved taste</span><h2>Movies picked for you</h2></div></div>
+  {% if preference_recommendations %}<div class="movie-grid">{% for movie in preference_recommendations %}<article class="movie-card highlight-card"><a href="{{ url_for('movie_detail', source=movie.source, movie_id=movie.id) }}" class="poster-link">{% if movie.poster %}<img src="{{ movie.poster }}" alt="{{ movie.title }}" class="poster">{% else %}<div class="poster poster-fallback">{{ movie.title }}</div>{% endif %}</a><div class="card-body"><div class="card-topline"><h3>{{ movie.title }}</h3><span class="rating-pill">{{ movie.ai_score }}</span></div><p class="meta-line">{{ movie.year }} · {{ movie.language }} · {{ movie.genres|join(', ') }}</p><p class="reason-line"><strong>Why it fits:</strong> {{ movie.reason }}</p><p class="overview-line"><strong>Why now:</strong> {{ movie.why_now }}</p></div></article>{% endfor %}</div>{% else %}<div class="empty-state"><h3>No personalized movies yet</h3><p>Add a few favorite titles or genres above, save the form, and this section will fill with 4 to 5 matching movies.</p></div>{% endif %}
+</section>
+{% endblock %}

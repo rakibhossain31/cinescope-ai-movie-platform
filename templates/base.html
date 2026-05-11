@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title if title else 'CineScope' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="page-bg"></div>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="{{ url_for('index') }}" class="brand">
+        <span class="brand-icon">🎬</span>
+        <span><strong>CineScope</strong><small>TMDB + Gemini ready</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('search_page') }}">Explore</a>
+        {% if current_user %}
+          <a href="{{ url_for('preferences') }}">Taste Profile</a>
+          {% if current_user['role'] == 'admin' %}<a href="{{ url_for('admin_dashboard') }}">Admin</a>{% endif %}
+          <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Login</a>
+          <a href="{{ url_for('register') }}" class="nav-pill">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <div class="container top-status-row">
+    <div class="status-chip {% if tmdb_live %}ok{% else %}warn{% endif %}">{{ 'TMDB live catalog' if tmdb_live else 'Local fallback catalog' }}</div>
+    <div class="status-chip {% if ai_live %}ok{% else %}warn{% endif %}">{{ 'Gemini ready' if ai_live else 'Smart local mode' }}</div>
+    {% if current_user %}<div class="status-chip neutral">{{ current_user['username'] }} · {{ current_user['role']|title }}</div>{% endif %}
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="container flash-stack">
+        {% for message in messages %}<div class="flash-message">{{ message }}</div>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main class="container page-content">{% block content %}{% endblock %}</main>
+</body>
+</html>

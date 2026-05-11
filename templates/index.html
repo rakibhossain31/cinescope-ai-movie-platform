@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero-panel">
+  <div class="hero-copy">
+    <span class="hero-tag">IMDb-style browsing with AI taste matching</span>
+    <h1>Search a much bigger movie world, then let AI personalize it for you.</h1>
+    <p>Browse trending, popular, and top rated movies from a live catalog. Registered users can save favorite titles, genres, languages, and moods, then get smarter picks layered on top.</p>
+  </div>
+  <form action="{{ url_for('search_page') }}" method="get" class="hero-search-card">
+    <div class="field wide">
+      <label>Movie title</label>
+      <input type="text" name="q" placeholder="Search for Interstellar, Dune, Harry Potter...">
+    </div>
+    <div class="field-grid">
+      <div class="field">
+        <label>Genre</label>
+        <select name="genre">
+          <option value="">All genres</option>
+          {% for genre_name, genre_id in genre_options %}
+            <option value="{{ genre_id }}">{{ genre_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label>Language</label>
+        <select name="language">
+          <option value="">Any</option>
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="bn">Bangla</option>
+          <option value="ko">Korean</option>
+          <option value="ja">Japanese</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Minimum rating</label>
+        <input type="number" name="rating" min="0" max="10" step="0.1" placeholder="7.0">
+      </div>
+      <div class="field">
+        <label>Sort by</label>
+        <select name="sort">
+          <option value="popularity.desc">Most popular</option>
+          <option value="vote_average.desc">Top rated</option>
+          <option value="release_date.desc">Newest</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="primary-btn full-width">Explore Movies</button>
+  </form>
+</section>
+
+{% if current_user and for_you %}
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <span class="section-kicker">Personalized</span>
+      <h2>For you</h2>
+    </div>
+    <span class="mini-note">{{ 'Curated with Gemini' if engine == 'gemini' else 'Smart local taste engine' }}</span>
+  </div>
+  <div class="movie-grid">
+    {% for movie in for_you %}
+    <article class="movie-card highlight-card">
+      <a href="{{ url_for('movie_detail', source=movie.source, movie_id=movie.id) }}" class="poster-link">
+        {% if movie.poster %}
+          <img src="{{ movie.poster }}" alt="{{ movie.title }}" class="poster">
+        {% else %}
+          <div class="poster poster-fallback">{{ movie.title }}</div>
+        {% endif %}
+      </a>
+      <div class="card-body">
+        <div class="card-topline">
+          <h3>{{ movie.title }}</h3>
+          <span class="rating-pill">{{ movie.ai_score }}</span>
+        </div>
+        <p class="meta-line">{{ movie.year }} · {{ movie.language }} · {{ movie.genres|join(', ') }}</p>
+        <p class="reason-line">{{ movie.reason }}</p>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <span class="section-kicker">Now trending</span>
+      <h2>Hot this week</h2>
+    </div>
+  </div>
+  <div class="movie-grid">
+    {% for movie in sections.trending %}
+    <article class="movie-card">
+      <a href="{{ url_for('movie_detail', source=movie.source, movie_id=movie.id) }}" class="poster-link">
+        {% if movie.poster %}
+          <img src="{{ movie.poster }}" alt="{{ movie.title }}" class="poster">
+        {% else %}
+          <div class="poster poster-fallback">{{ movie.title }}</div>
+        {% endif %}
+      </a>
+      <div class="card-body">
+        <div class="card-topline">
+          <h3>{{ movie.title }}</h3>
+          <span class="rating-pill">⭐ {{ movie.rating }}</span>
+        </div>
+        <p class="meta-line">{{ movie.year }} · {{ movie.language }}</p>
+        <p class="overview-line">{{ movie.overview[:110] }}{% if movie.overview|length > 110 %}...{% endif %}</p>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="dual-sections">
+  <div class="section-block compact-block">
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">Popular</span>
+        <h2>Crowd favorites</h2>
+      </div>
+    </div>
+    <div class="movie-grid small-grid">
+      {% for movie in sections.popular[:6] %}
+      <article class="movie-card small-card">
+        <a href="{{ url_for('movie_detail', source=movie.source, movie_id=movie.id) }}" class="poster-link">
+          {% if movie.poster %}
+            <img src="{{ movie.poster }}" alt="{{ movie.title }}" class="poster short-poster">
+          {% else %}
+            <div class="poster poster-fallback short-poster">{{ movie.title }}</div>
+          {% endif %}
+        </a>
+        <div class="card-body">
+          <h3>{{ movie.title }}</h3>
+          <p class="meta-line">⭐ {{ movie.rating }} · {{ movie.year }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="section-block compact-block">
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">Top rated</span>
+        <h2>Critics love these</h2>
+      </div>
+    </div>
+    <div class="movie-grid small-grid">
+      {% for movie in sections.top_rated[:6] %}
+      <article class="movie-card small-card">
+        <a href="{{ url_for('movie_detail', source=movie.source, movie_id=movie.id) }}" class="poster-link">
+          {% if movie.poster %}
+            <img src="{{ movie.poster }}" alt="{{ movie.title }}" class="poster short-poster">
+          {% else %}
+            <div class="poster poster-fallback short-poster">{{ movie.title }}</div>
+          {% endif %}
+        </a>
+        <div class="card-body">
+          <h3>{{ movie.title }}</h3>
+          <p class="meta-line">⭐ {{ movie.rating }} · {{ movie.year }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<button class="chatbot-launcher" id="chatbotLauncher" aria-label="Open movie chatbot">💬 Movie Bot</button>
+
+<section class="chatbot-panel" id="chatbotPanel" aria-live="polite">
+  <div class="chatbot-header">
+    <div>
+      <strong>CineScope Assistant</strong>
+      <small>Ask about actors, songs, directors, genres, and movies.</small>
+    </div>
+    <div class="chatbot-actions">
+      <button type="button" class="chatbot-reset" id="chatbotReset">New chat</button>
+      <button type="button" class="chatbot-close" id="chatbotClose" aria-label="Close chatbot">×</button>
+    </div>
+  </div>
+
+
+  <div class="chatbot-messages" id="chatbotMessages">
+    <div class="chat-message bot-message">
+      <p>Hello! Ask me about a movie, actor, song, director, or genre, and I will show real movie matches you can open.</p>
+    </div>
+  </div>
+
+  <form class="chatbot-form" id="chatbotForm">
+    <input type="text" id="chatbotInput" placeholder="Type a movie question..." autocomplete="off">
+    <button type="submit" class="primary-btn">Send</button>
+  </form>
+</section>
+
+<script>
+  const chatbotLauncher = document.getElementById('chatbotLauncher');
+  const chatbotPanel = document.getElementById('chatbotPanel');
+  const chatbotClose = document.getElementById('chatbotClose');
+  const chatbotReset = document.getElementById('chatbotReset');
+  const chatbotForm = document.getElementById('chatbotForm');
+  const chatbotInput = document.getElementById('chatbotInput');
+  const chatbotMessages = document.getElementById('chatbotMessages');
+
+  const openChatbot = () => {
+    chatbotPanel.classList.add('open');
+    chatbotInput.focus();
+  };
+
+  const appendMessage = (text, sender = 'bot', cards = []) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = `chat-message ${sender}-message`;
+
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    wrapper.appendChild(paragraph);
+
+    if (cards.length) {
+      const cardGrid = document.createElement('div');
+      cardGrid.className = 'chatbot-card-grid';
+      cards.forEach((card) => {
+        const link = document.createElement('a');
+        link.className = 'chatbot-card';
+        link.href = card.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.innerHTML = `
+          ${card.poster ? `<img src="${card.poster}" alt="${card.title}">` : '<div class="chatbot-card-fallback">Movie</div>'}
+          <div class="chatbot-card-body">
+            <strong>${card.title}</strong>
+            <span>${card.year} · ${card.language}</span>
+            <small>${(card.genres || []).join(', ')}</small>
+          </div>
+        `;
+        cardGrid.appendChild(link);
+      });
+      wrapper.appendChild(cardGrid);
+    }
+
+    chatbotMessages.appendChild(wrapper);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  };
+
+  const setLoading = (loading) => {
+    chatbotForm.classList.toggle('loading', loading);
+    chatbotInput.disabled = loading;
+  };
+
+  chatbotLauncher.addEventListener('click', openChatbot);
+  chatbotClose.addEventListener('click', () => chatbotPanel.classList.remove('open'));
+
+  chatbotReset.addEventListener('click', async () => {
+    await fetch('{{ url_for("chatbot_reset") }}', {method: 'POST'});
+    chatbotMessages.innerHTML = '<div class="chat-message bot-message"><p>Hello! Ask me about a movie, actor, song, director, or genre, and I will show real movie matches you can open.</p></div>';
+    chatbotInput.value = '';
+    openChatbot();
+  });
+
+
+  chatbotForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const message = chatbotInput.value.trim();
+    if (!message) return;
+
+    appendMessage(message, 'user');
+    chatbotInput.value = '';
+    setLoading(true);
+
+    try {
+      const response = await fetch('{{ url_for("chatbot_api") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message})
+      });
+      const data = await response.json();
+      appendMessage(data.reply || 'I could not answer that right now.', 'bot', data.cards || []);
+    } catch (error) {
+      appendMessage('Sorry, the chatbot could not reach the server right now.', 'bot');
+    } finally {
+      setLoading(false);
+      chatbotInput.focus();
+    }
+  });
+</script>
+{% endblock %}

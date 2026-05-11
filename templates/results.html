@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="results-shell">
+  <aside class="filters-panel">
+    <div class="panel-head"><span class="section-kicker">Search</span><h2>Explore movies</h2></div>
+    <form action="{{ url_for('search_page') }}" method="get" class="stack-form">
+      <div class="field"><label>Title</label><input type="text" name="q" value="{{ filters.query }}" placeholder="Search titles"></div>
+      <div class="field"><label>Genre</label><select name="genre"><option value="">All genres</option>{% for genre_name, genre_id in genre_options %}<option value="{{ genre_id }}" {% if filters.genre == genre_id|string %}selected{% endif %}>{{ genre_name }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Language</label><select name="language"><option value="">Any</option><option value="en" {% if filters.language == 'en' %}selected{% endif %}>English</option><option value="hi" {% if filters.language == 'hi' %}selected{% endif %}>Hindi</option><option value="bn" {% if filters.language == 'bn' %}selected{% endif %}>Bangla</option><option value="ko" {% if filters.language == 'ko' %}selected{% endif %}>Korean</option><option value="ja" {% if filters.language == 'ja' %}selected{% endif %}>Japanese</option></select></div>
+      <div class="field"><label>Year</label><input type="number" name="year" value="{{ filters.year }}" placeholder="2024"></div>
+      <div class="field"><label>Minimum rating</label><input type="number" name="rating" min="0" max="10" step="0.1" value="{{ filters.rating }}"></div>
+      <div class="field"><label>Sort by</label><select name="sort"><option value="popularity.desc" {% if filters.sort == 'popularity.desc' %}selected{% endif %}>Most popular</option><option value="vote_average.desc" {% if filters.sort == 'vote_average.desc' %}selected{% endif %}>Top rated</option><option value="release_date.desc" {% if filters.sort == 'release_date.desc' %}selected{% endif %}>Newest</option></select></div>
+      <button type="submit" class="primary-btn full-width">Apply Filters</button>
+    </form>
+  </aside>
+  <div class="results-main">
+    <section class="section-block compact-block">
+      <div class="section-head"><div><span class="section-kicker">Catalog results</span><h2>{{ pagination.total_results }} movie{% if pagination.total_results != 1 %}s{% endif %} found</h2></div>{% if filters.query %}<span class="mini-note">Search for “{{ filters.query }}”</span>{% endif %}</div>
+      {% if recommendations %}
+      <div class="movie-grid">{% for movie in recommendations %}<article class="movie-card"><a href="{{ url_for('movie_detail', source=movie.source, movie_id=movie.id) }}" class="poster-link">{% if movie.poster %}<img src="{{ movie.poster }}" alt="{{ movie.title }}" class="poster">{% else %}<div class="poster poster-fallback">{{ movie.title }}</div>{% endif %}</a><div class="card-body"><div class="card-topline"><h3>{{ movie.title }}</h3><span class="rating-pill">⭐ {{ movie.rating }}</span></div><p class="meta-line">{{ movie.year }} · {{ movie.language }} · {{ movie.genres|join(', ') }}</p><p class="overview-line">{{ movie.overview[:120] }}{% if movie.overview|length > 120 %}...{% endif %}</p></div></article>{% endfor %}</div>
+      {% else %}<div class="empty-state"><h3>No direct matches found</h3><p>Try a broader title, remove a filter, or lower the minimum rating.</p></div>{% endif %}
+      {% if pagination.total_pages > 1 %}<div class="pagination-row">{% if pagination.page > 1 %}<a class="secondary-btn" href="{{ url_for('search_page', q=filters.query, genre=filters.genre, year=filters.year, language=filters.language, rating=filters.rating, sort=filters.sort, page=pagination.page-1) }}">← Previous</a>{% endif %}<span class="mini-note">Page {{ pagination.page }} of {{ pagination.total_pages }}</span>{% if pagination.page < pagination.total_pages %}<a class="secondary-btn" href="{{ url_for('search_page', q=filters.query, genre=filters.genre, year=filters.year, language=filters.language, rating=filters.rating, sort=filters.sort, page=pagination.page+1) }}">Next →</a>{% endif %}</div>{% endif %}
+    </section>
+    <section class="section-block compact-block">
+      <div class="section-head"><div><span class="section-kicker">Personalized layer</span><h2>AI picks</h2></div>{% if current_user %}<span class="mini-note">{{ 'Gemini personalized' if ai_mode == 'gemini' else 'Smart local ranking' }}</span>{% endif %}</div>
+      {% if current_user %}
+        {% if ai_recommendations %}
+        <div class="movie-grid">{% for movie in ai_recommendations %}<article class="movie-card highlight-card"><a href="{{ url_for('movie_detail', source=movie.source, movie_id=movie.id) }}" class="poster-link">{% if movie.poster %}<img src="{{ movie.poster }}" alt="{{ movie.title }}" class="poster">{% else %}<div class="poster poster-fallback">{{ movie.title }}</div>{% endif %}</a><div class="card-body"><div class="card-topline"><h3>{{ movie.title }}</h3><span class="rating-pill">{{ movie.ai_score }}</span></div><p class="meta-line">{{ movie.year }} · {{ movie.language }} · {{ movie.genres|join(', ') }}</p><p class="reason-line"><strong>Why it fits:</strong> {{ movie.reason }}</p><p class="overview-line"><strong>Why now:</strong> {{ movie.why_now }}</p></div></article>{% endfor %}</div>
+        {% else %}<div class="empty-state"><h3>No personalized picks yet</h3><p>Save some favorite movies, genres, languages, or moods in your taste profile first.</p><a href="{{ url_for('preferences') }}" class="secondary-btn">Open Taste Profile</a></div>{% endif %}
+      {% else %}<div class="empty-state"><h3>Guest mode is active</h3><p>You can browse the catalog without logging in. Register to unlock personalized AI movie picks.</p><div class="button-row"><a href="{{ url_for('login') }}" class="primary-btn">Login</a><a href="{{ url_for('register') }}" class="secondary-btn">Register</a></div></div>{% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-shell"><div class="auth-card"><span class="section-kicker">Welcome back</span><h1>Login</h1><p>Guests can browse freely. Login unlocks taste-profile recommendations and the admin dashboard for admins.</p><form method="post" class="stack-form"><div class="field"><label>Login type</label><select name="role" required><option value="user">User Login</option><option value="admin">Admin Login</option></select></div><div class="field"><label>Username</label><input type="text" name="username" required></div><div class="field"><label>Password</label><input type="password" name="password" required></div><button type="submit" class="primary-btn full-width">Login</button></form></div></section>
+{% endblock %}
