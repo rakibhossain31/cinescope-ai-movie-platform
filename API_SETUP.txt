@@ -1,0 +1,26 @@
+CineScope setup
+
+1. Install packages
+   pip install -r requirements.txt
+
+2. Optional: enable live TMDB catalog
+   Windows CMD:
+   setx TMDB_BEARER_TOKEN "your_tmdb_bearer_token_here"
+
+   or
+   setx TMDB_API_KEY "your_tmdb_api_key_here"
+
+3. Optional: enable Gemini recommendations
+   Windows CMD:
+   setx AI_PROVIDER "gemini"
+   setx GEMINI_API_KEY "your_gemini_api_key_here"
+
+4. Run the app
+   python app.py
+
+Notes
+- Without TMDB credentials, the site still works with the local CSV fallback catalog.
+- Without Gemini credentials, the site still works with the built-in local recommendation logic.
+- Admin login:
+  username: admin
+  password: admin123
