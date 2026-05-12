@@ -111,3 +111,6 @@ Default admin account:
 Username: admin
 Password: admin123
 ```
+## Screenshot of The Homepage
+
+![CineScope App Screenshot](images/homepage.png)
