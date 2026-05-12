@@ -113,4 +113,4 @@ Password: admin123
 ```
 ## Screenshot of The Homepage
 
-![CineScope App Screenshot](images/homepage.png)
+![CineScope App Screenshot](images/homepage.PNG)
